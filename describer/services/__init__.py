@@ -5,3 +5,4 @@ from describer.services import rds
 from describer.services import es
 from describer.services import cloudfront
 from describer.services import route53
+from describer.services import s3

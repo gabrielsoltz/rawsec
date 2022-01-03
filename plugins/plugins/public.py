@@ -3,7 +3,8 @@ ACTION = 'public'
 ALLOWED_SERVICES = [
     'ec2',
     'elb',
-    'elbv2'
+    'elbv2',
+    'route53'
 ]
 
 class Actioner(object):
@@ -45,6 +46,12 @@ class Actioner(object):
         if resource['service'] == 'elb' or resource['service'] == 'elbv2':
             if resource['data']["Scheme"] == "internet-facing":
                 targets.append(resource['data']["DNSName"])
+        
+        if resource['service'] == 'route53':
+            if resource['data']['Config']["PrivateZone"] == False:
+                for record in resource['data']['records']:
+                    if record['Type'] in ('A', 'CNAME'):
+                        targets.append(record['Name'])
         
         return targets        
 

@@ -46,8 +46,15 @@ class Describer(object):
                 marker = None
         
         for hz in list_hosted_zones['HostedZones']:
-            
+            # Zone
             identifier = aws_route53_hz_arn(hz['Id'])
+            
+            # Adding Records
+            list_resource_records_sets = self.client.list_resource_record_sets(
+                HostedZoneId=hz['Id'],
+            )
+            hz['records'] = list_resource_records_sets['ResourceRecordSets']
+            
             resource = {
                 "service": self.SERVICE,
                 'account': self.account,
@@ -56,6 +63,6 @@ class Describer(object):
                 "data": hz
             }
             resources[identifier] = resource
-
+            
         self.logger.info("Got %s resources", len(resources))
         return resources

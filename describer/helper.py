@@ -31,6 +31,8 @@ def aws_account_id(sess=None):
         client = sess.client('sts')
     return client.get_caller_identity()["Account"]
 
-
-
-
+def aws_s3_bucket_arn(bucket_name):
+    ''' Constructs an ARN for an S3 Bucket resource in the given region. '''
+    return 'arn:aws:s3:::{0}'.format(
+        bucket_name,
+    )

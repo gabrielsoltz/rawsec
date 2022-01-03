@@ -13,7 +13,8 @@ AVAILABLE_SERVICES = [
     'elbv2',
     'es',
     'cloudfront',
-    'route53'
+    'route53',
+    's3'
 ]
 
 AVAILABLE_PLUGINS = [
@@ -90,7 +91,7 @@ def main(args):
         else:
             plugins = args.plugins
     else:
-        plugins = 'inventory'
+        plugins = ['inventory']
     
     if args.values:
         values = args.values
