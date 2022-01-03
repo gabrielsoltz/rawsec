@@ -53,7 +53,8 @@ AVAILABLE_SERVICES = [
     'elbv2',
     'es',
     'cloudfront',
-    'route53'
+    'route53',
+    's3'
 ]
 
 ## Plugins
