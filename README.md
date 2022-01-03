@@ -59,14 +59,19 @@ AVAILABLE_SERVICES = [
 
 ## Plugins
 
-Plugins will use Describer data as input to execute actions. Actions can be whatever you need to do with that data.
+Plugins use Describer data as input to execute actions. Actions can be whatever you need to do with that data.
+
+Plugins can be configured for certain services only, for example, an IAM resource will not be scanned by the NMAP plugin.
+
+Plugins can be combined without amount or order restriction using `--plugins inventory public nmap`
+
 The following is the list of default plugins as part of the tool.
 
-Each plugin will add a new key to the resources that are being described.
-
-Plugins can be configured only for certain services.
-
-Plugins can be combined without any amount or order restriction.
+- Public
+- Find
+- Inventory
+- Nmap
+- Burp
 
 ### Public
 
@@ -102,6 +107,10 @@ Lists all resources with all the data fetched
 
 Executes NMAp scan across public targets.
 
+#### Configuration
+
+You can configure `NMAP_ARGUMENTS` for Nmap scans.
+
 #### Examples
 
 - `python3 rawsec.py -r eu-west-1 -p nmap` : Executes NMAp scan across all public services in region `eu-west-1`
@@ -112,7 +121,9 @@ Executes NMAp scan across public targets.
 
 Executes Burp scan across public targets.
 
-You need to have an Enterprise/Profesional Burp license to use this plugin and enable REST Api (user Options -> Misc -> Rest API)
+You need to have an Enterprise/Profesional Burp license to use this plugin and enable REST Api (user Options -> Misc -> Rest API). You need to configure `SERVER_URL` and `API_KEY`.
+
+You can also configure `options` for Burp options scans. You can generate this json by using the Burp Library and then exporting.
 
 #### Examples
 
