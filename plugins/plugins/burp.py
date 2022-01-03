@@ -71,7 +71,10 @@ class Actioner(object):
         for identifier, resource in tqdm(self.parsed_resources.items()):
             for target in resource[self.action]['targets']:
                 options['urls'] = [target]
-                burp_id = self.burp_api_client.initiate_scan(options=options)
+                try:
+                    burp_id = self.burp_api_client.initiate_scan(options=options)
+                except burpsuite.exceptions.AuthorizationError:
+                    return False
                 progress = ''
                 while not (progress == 'paused' or progress == 'succeeded' or progress == 'failed'):
                     time.sleep(5)

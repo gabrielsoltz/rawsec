@@ -41,7 +41,16 @@ def run_pluginer(resources, actions, values=None):
                 err
             )
             continue
-        output.update(hndl.execute())
+        
+        execute = hndl.execute()
+        
+        if execute is not False:
+            output.update(execute)
+        else:
+            logger.error(
+                "plugin %s error, skipping",
+                plugin
+            )
         
     output = remove_data(output)
     output = json.dumps(output, indent=2, sort_keys=True, default=str)
