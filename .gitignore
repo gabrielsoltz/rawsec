@@ -1,0 +1,29 @@
+# python code caches
+*.py[co]
+__pycache__
+
+# yaml build directory
+build
+
+# output
+out
+
+.DS_Store
+
+# vim
+.*.swp
+
+# Idea
+.idea/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+*.no
+*.drawio
