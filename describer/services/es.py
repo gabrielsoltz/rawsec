@@ -16,10 +16,9 @@ class Describer(object):
     def get(self):
         resources = {}
 
-        candidates = self.client.list_domain_names()
+        list_domain_names = self.client.list_domain_names()
 
-        for es in candidates["DomainNames"]:
-            # Query for data about this domain based on the enumerated name.
+        for es in list_domain_names["DomainNames"]:
             domain = self.client.describe_elasticsearch_domain(
                 DomainName=es["DomainName"]
             )
@@ -44,7 +43,7 @@ class Describer(object):
                 'account': self.account,
                 'region': self.region,
                 "identifier": identifier,
-                "data": domain
+                "data": domain["DomainStatus"]
             }
             resources[identifier] = resource
 

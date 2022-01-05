@@ -4,7 +4,10 @@ ALLOWED_SERVICES = [
     'ec2',
     'elb',
     'elbv2',
-    'route53'
+    'route53',
+    'es',
+    's3',
+    'cloudfront'
 ]
 
 class Actioner(object):
@@ -23,8 +26,10 @@ class Actioner(object):
         for identifier, resource in resources.items():
                         
             if resource['service'] in ALLOWED_SERVICES:
-                resource[self.action] = {'targets': self.parse_public_service(resource)}
-                PARSE_PUBLIC_OUTPUT[identifier] = resource
+                targets = self.parse_public_service(resource)
+                if targets:
+                    resource[self.action] = {'targets': targets}
+                    PARSE_PUBLIC_OUTPUT[identifier] = resource
 
         return PARSE_PUBLIC_OUTPUT
     
@@ -52,6 +57,30 @@ class Actioner(object):
                 for record in resource['data']['records']:
                     if record['Type'] in ('A', 'CNAME'):
                         targets.append(record['Name'])
+        
+        if resource['service'] == 'es':
+            if not 'Endpoints' in resource['data']:
+                targets.append(resource['data']['Endpoint'])
+        
+        if resource['service'] == 's3':
+            if resource['data']['get_bucket_acl']:
+                for acl in resource['data']['get_bucket_acl']:
+                    if acl['Grantee']['Type'] == 'Group':
+                        if acl['Grantee']['URI'] == 'http://acs.amazonaws.com/groups/global/AllUsers':
+                            print ('all', resource['data'])
+                            targets.append(resource['data']['Name'])
+                        elif acl['Grantee']['URI'] == 'http://acs.amazonaws.com/groups/global/AuthenticatedUsers':
+                            print ('auth', resource['data'])
+                            targets.append(resource['data']['Name'])
+            if resource['data']['get_bucket_policy_status']:
+                if resource['data']['get_bucket_policy_status']['IsPublic']:
+                    targets.append(resource['data']['Name'])
+            
+        if resource['service'] == 'cloudfront':
+            if 'Aliases' in resource['data']:
+                targets.append(resource['data']['Aliases']['Items'])
+            else:
+                targets.append(resource['data']['DomainName'])     
         
         return targets        
 

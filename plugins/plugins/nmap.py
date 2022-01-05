@@ -8,7 +8,10 @@ ACTION = 'nmap'
 ALLOWED_SERVICES = [
     'ec2',
     'elb',
-    'elbv2'
+    'elbv2',
+    'route53',
+    'es',
+    'cloudfront'
 ]
 NMAP_NO_PING_PORTS = '-n -Pn -PE -p 21-23,80,3389'
 NMAP_SYN_FAST = '-sS -F'
@@ -38,10 +41,9 @@ class Actioner(object):
             if resource['service'] in ALLOWED_SERVICES:
                 
                 public_targets = ActionerPublic(self.resources, self.values).parse_public_service(resource)
-                
-                resource[self.action] = {'targets': public_targets}
-                        
-                PARSE_OUTPUT[identifier] = resource
+                if public_targets:
+                    resource[self.action] = {'targets': public_targets}    
+                    PARSE_OUTPUT[identifier] = resource
 
         return PARSE_OUTPUT
     

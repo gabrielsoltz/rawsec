@@ -1,6 +1,6 @@
 import logging
 import boto3
-from botocore.exceptions import ConnectTimeoutError
+from botocore.exceptions import ConnectTimeoutError, ClientError
 
 from describer.helper import aws_s3_bucket_arn
 
@@ -22,16 +22,50 @@ class Describer(object):
         
         for bucket in list_buckets['Buckets']:
            
-            # Adding ACL
-            # list_resource_records_sets = self.client.list_resource_record_sets(
-            #     HostedZoneId=hz['Id'],
-            # )
-            # hz['records'] = list_resource_records_sets['ResourceRecordSets']
+            # Adding Bucket ACL
+            get_bucket_acl = self.client.get_bucket_acl(
+                Bucket=bucket['Name'],
+            )
+            bucket['get_bucket_acl'] = get_bucket_acl['Grants']
             
-            # Adding WEB
-            
+            # Adding Bucket Policy and Status
+            try:
+                get_bucket_policy = self.client.get_bucket_policy(
+                    Bucket=bucket['Name'],
+                )
+                get_bucket_policy = get_bucket_policy['Policy']
+                get_bucket_policy_status = self.client.get_bucket_policy_status(
+                                    Bucket=bucket['Name'],
+                                ) 
+                get_bucket_policy_status = get_bucket_policy_status['PolicyStatus']
+            except ClientError as e:
+                get_bucket_policy = []
+                get_bucket_policy_status = []
+                if e.response['Error']['Code'] == 'NoSuchBucketPolicy':
+                    pass
+                    #print('\t NoSuchBucketPolicy')
+                else:
+                    pass
+                    #print("unexpected error: %s" % (e.response))
+            bucket['get_bucket_policy'] = get_bucket_policy
+            bucket['get_bucket_policy_status'] = get_bucket_policy_status
+
+            # Adding Website configuration
+            try:
+                get_bucket_website = self.client.get_bucket_website(
+                    Bucket=bucket['Name'],
+                )
+            except ClientError as e:
+                get_bucket_website = []
+                if e.response['Error']['Code'] == 'NoSuchWebsiteConfiguration':
+                    pass
+                    #print('\t NoSuchWebsiteConfiguration')
+                else:
+                    pass
+                    #print("unexpected error: %s" % (e.response))
+            bucket['get_bucket_website'] = get_bucket_website
+
             identifier = aws_s3_bucket_arn(bucket['Name'])
-            
             resource = {
                 "service": self.SERVICE,
                 'account': self.account,

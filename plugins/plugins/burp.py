@@ -9,7 +9,10 @@ ACTION = 'burp'
 ALLOWED_SERVICES = [
     'ec2',
     'elb',
-    'elbv2'
+    'elbv2',
+    'route53',
+    'es',
+    'cloudfront'
 ]
 SERVER_URL= 'http://127.0.0.1:1337/'
 API_KEY = ''
@@ -57,10 +60,9 @@ class Actioner(object):
             if resource['service'] in ALLOWED_SERVICES:
                 
                 public_targets = ActionerPublic(self.resources, self.values).parse_public_service(resource)
-                
-                resource[self.action] = {'targets': public_targets}
-                        
-                PARSE_OUTPUT[identifier] = resource
+                if public_targets:
+                    resource[self.action] = {'targets': public_targets}    
+                    PARSE_OUTPUT[identifier] = resource
 
         return PARSE_OUTPUT
     
