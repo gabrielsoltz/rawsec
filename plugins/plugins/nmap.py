@@ -1,5 +1,6 @@
 import nmap
 from tqdm.autonotebook import tqdm
+from multiprocessing.pool import ThreadPool
 from plugins.plugins.public import Actioner as ActionerPublic
 
 
@@ -51,10 +52,17 @@ class Actioner(object):
         
         EXECUTE_OUTPUT = {}
         for identifier, resource in tqdm(self.parsed_resources.items()):
+            OUTPUT_LIST = []
             for target in resource[self.action]['targets']:
                 scan = self.nm.scan(hosts=target, arguments=NMAP_ARGUMENTS)
-                resource[self.action] = {'target': target, 'output': scan['scan']}
-                EXECUTE_OUTPUT[identifier] = resource
+                if scan['scan']:
+                    OUTPUT_LIST.append({'target': target, 'output': scan['scan']})
+                elif scan['nmap']['scaninfo']['error']:
+                    OUTPUT_LIST.append({'target': target, 'output': scan['nmap']['scaninfo']['error'][0]})
+                elif scan['nmap']['scaninfo']['warning']:
+                    OUTPUT_LIST.append({'target': target, 'output': scan['nmap']['scaninfo']['warning'][0]})
+            resource[self.action] = OUTPUT_LIST
+            EXECUTE_OUTPUT[identifier] = resource
         
         return EXECUTE_OUTPUT
             
