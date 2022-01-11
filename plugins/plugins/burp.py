@@ -71,6 +71,7 @@ class Actioner(object):
         EXECUTE_OUTPUT = {}
         
         for identifier, resource in tqdm(self.parsed_resources.items()):
+            OUTPUT_LIST = []
             for target in resource[self.action]['targets']:
                 options['urls'] = [target]
                 try:
@@ -83,8 +84,9 @@ class Actioner(object):
                     with contextlib.redirect_stdout(None):
                         scan = self.burp_api_client.get_scan(task_id=burp_id)
                     progress = scan['scan_status']
-                resource[self.action] = {'target': target, 'output': scan}
-                EXECUTE_OUTPUT[identifier] = resource        
+                OUTPUT_LIST.append({'target': target, 'output': scan})
+            resource[self.action] = OUTPUT_LIST
+            EXECUTE_OUTPUT[identifier] = resource        
         
         return EXECUTE_OUTPUT
 
