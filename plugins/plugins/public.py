@@ -78,7 +78,7 @@ class Actioner(object):
             
         if resource['service'] == 'cloudfront':
             if 'Aliases' in resource['data']:
-                targets.append(resource['data']['Aliases']['Items'])
+                targets.extend(resource['data']['Aliases']['Items'])
             else:
                 targets.append(resource['data']['DomainName'])     
         
